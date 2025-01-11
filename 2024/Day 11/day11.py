@@ -1,4 +1,3 @@
-import numpy as np
 # Import input.txt as str
 input_text = open('input.txt').read()
 
