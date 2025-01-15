@@ -1,15 +1,12 @@
 # Import input.txt as str
 input_text = open('input.txt').read()
 
-stones = input_text.split(' ')
-num_blinks = 75
 
-
-def blink(num_list, blinks_done, popular_occ, ignore_list: bool = False):
+def blink(num_list, blinks_done, single_digits, ignore_list: bool = False):
     updated_list = []
     for num in num_list:
-        if num in popular_occ and not ignore_list:
-            popular_occ[num][blinks_done] += 1
+        if num in single_digits and not ignore_list:
+            single_digits[num][blinks_done] += 1
             continue
         if ignore_list and num == '0':
             updated_list.append('1')
@@ -24,53 +21,75 @@ def blink(num_list, blinks_done, popular_occ, ignore_list: bool = False):
     return updated_list
 
 
-def num_stones(starting_num, blinks_done):
-    already_calculated = starting_sizes[str(starting_num)][blinks_done - 1]
+def num_stones(starting_digit: str, blinks_done: int) -> int:
+    already_calculated = digit_sizes[starting_digit][blinks_done - 1]
     if already_calculated is not None:
         return already_calculated
 
     sum_num_stones = 0
-    for sub_num, sub_list in num_pop_occ[str(starting_num)].items():
+    for sub_num, sub_list in digit_self_occ[starting_digit].items():
         for i, num_occ in enumerate(sub_list):
             if num_occ == 0:
                 continue
-            sum_num_stones += num_occ * \
-                num_stones(sub_num, blinks_done - i)
+            sum_num_stones += num_occ * num_stones(sub_num, blinks_done - i)
 
-    starting_sizes[str(starting_num)][blinks_done - 1] = sum_num_stones
-    return (sum_num_stones)
+    digit_sizes[starting_digit][blinks_done - 1] = sum_num_stones
+    return sum_num_stones
 
 
-popular_occ = {}
-num_pop_occ = {}
-starting_sizes = {}
+# 25 blinks is small enough that we can brute force
+stones = input_text.split(' ')
+num_blinks = 25
+for blinks_done in range(num_blinks):
+    stones = blink(stones, blinks_done, [], True)
 
-# Setup dictionaries
-for pop_num in range(10):
-    popular_occ[str(pop_num)] = [0] * num_blinks
-    num_pop_occ[str(pop_num)] = {str(num): [0] * 6 for num in range(10)}
-    starting_sizes[str(pop_num)] = [None] * num_blinks
-    single_stone = str(pop_num)
+print(len(stones))
+
+# For 75 blinks, we need a more complicated caching system
+stones = input_text.split(' ')
+num_blinks = 75
+
+# Dictionary for each single digit with a list of how many time that digit occurs, after n blinks of the starting input
+single_digit_occ: dict[list] = {}
+
+# Dictionary for each single digit, with a single_digit_occ dict, with the key as the starting stone
+digit_self_occ: dict[dict[list]] = {}
+
+# Dictionary for each single digit, with list of number of all stones, after n blinks of the digit
+digit_sizes: dict[list] = {}
+
+# Setup dictionaries to the right size
+for digit in range(10):
+    single_digit_occ[str(digit)] = [0] * num_blinks
+    digit_self_occ[str(digit)] = {str(num): [0] * 6 for num in range(10)}
+    digit_sizes[str(digit)] = [None] * num_blinks
+
+    # Setup digit_sizes
+    single_stone = str(digit)
     for i in range(10):
         single_stone = blink(single_stone, 0, [0], True)
-        starting_sizes[str(pop_num)][i] = len(single_stone)
+        digit_sizes[str(digit)][i] = len(single_stone)
 
-for pop_num in range(10):
-    single_stone = str(pop_num)
+for digit in range(10):
+    single_stone = str(digit)
     for blinks_done in range(num_blinks):
         single_stone = blink(single_stone, blinks_done,
-                             num_pop_occ[str(pop_num)], ignore_list=(blinks_done == 0))
+                             digit_self_occ[str(digit)], ignore_list=(blinks_done == 0))
         if len(single_stone) == 0:
             break
 
+# Calculate the blinks for the input
 for blinks_done in range(num_blinks):
-    stones = blink(stones, blinks_done, popular_occ)
+    stones = blink(stones, blinks_done, single_digit_occ)
     if len(stones) == 0:
         break
 
+# Number of stones that have never been through a single digit
 number_stones = len(stones)
-for num in range(10):
-    number_stones += sum(popular_occ[str(num)][blinks] *
-                         num_stones(num, num_blinks - blinks) for blinks in range(num_blinks))
+
+# Add all stones which ended on a single digit multiplied by the number they would have contributed
+for digit, num_occ in single_digit_occ.items():
+    number_stones += sum(num_occ[blinks] *
+                         num_stones(digit, num_blinks - blinks) for blinks in range(num_blinks))
 
 print(number_stones)
