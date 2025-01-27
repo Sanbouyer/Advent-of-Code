@@ -1,6 +1,7 @@
 # Import input.txt as str
 import sys
-input_text = open('input.txt').read()
+with open('input.txt') as input:
+    input_text = input.read()
 
 
 class Path:

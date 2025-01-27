@@ -1,5 +1,6 @@
 # Import input.txt as str
-input_text = open('input.txt').read()
+with open('input.txt') as input:
+    input_text = input.read()
 
 block_list = []
 for ind, num in enumerate(input_text):

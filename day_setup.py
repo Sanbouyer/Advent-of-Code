@@ -162,7 +162,8 @@ def setup():
 
 python_starter = """\
 # Import input.txt as str
-input_text = open('input.txt').read()
+with open('input.txt') as input:
+    input_text = input.read()
 """
 
 if __name__ == "__main__":

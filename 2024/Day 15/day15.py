@@ -1,5 +1,6 @@
 # Import input.txt as str
-input_text = open('input.txt').read()
+with open('input.txt') as input:
+    input_text = input.read()
 
 
 def move(warehouse: str, direction: str, width: int, double_width: bool) -> str:

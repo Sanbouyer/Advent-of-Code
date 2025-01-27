@@ -1,5 +1,6 @@
 # Import input.txt as str
-input_text = open('input.txt').read()
+with open('input.txt') as input:
+    input_text = input.read()
 
 width = input_text.find('\n') + 1
 height = len(input_text) // width + 1
