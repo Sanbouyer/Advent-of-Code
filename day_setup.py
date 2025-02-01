@@ -107,7 +107,7 @@ def download_input(day: int, values: dict, times_tried: int) -> str:
 
     print(f"Input for Day {day} downloaded successfully")
 
-    return response.text
+    return response.text[:-1]
 
 
 def setup():
