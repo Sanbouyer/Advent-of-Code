@@ -1,2 +1,4 @@
 values.pkl
 \.vscode
+\.gitignore
+**/result.json
