@@ -38,7 +38,7 @@ def get_values():
 
     first_arg: str = sys.argv[1]
 
-    if sys.argv[1] in ['-h', '--help']:
+    if first_arg in ['-h', '--help']:
         print("""Optional arguments (only one at a time)
               *year (int): The default year directory you want to work in
               *tokenID (str): The sessionID for the web browser of your choice. e.g. "session=..."
@@ -96,7 +96,10 @@ def download_input(day: int, values: dict, times_tried: int) -> str:
     if response.status_code != 200:
         print(
             f"Failed to download input for the {times_tried} time. Status code: {response.status_code}")
-        if response.status_code == 404:
+        if response.status_code == 400:
+            print(response.text)
+            sys.exit(1)
+        elif response.status_code == 404:
             print("The puzzle might not be released yet.")
         elif response.status_code == 500:
             print("Check your session token")
