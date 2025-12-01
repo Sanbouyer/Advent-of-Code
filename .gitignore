@@ -1,4 +1,5 @@
 values.pkl
 \.vscode
-\.gitignore
+.gitignore
 **/result.json
+2024/Day 24/*
